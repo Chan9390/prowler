@@ -2433,3 +2433,35 @@ class LighthouseConfigUpdateSerializer(BaseWriteSerializer):
             instance.api_key_decoded = api_key
             instance.save()
         return instance
+
+
+class LighthouseChatSerializer(serializers.Serializer):
+    """
+    Serializer for Lighthouse chat endpoint.
+    """
+
+    class JSONAPIMeta:
+        resource_name = "lighthouse-chat"
+
+    messages = serializers.ListField(
+        child=serializers.DictField(),
+        help_text="List of chat messages with role and content",
+    )
+
+    def validate_messages(self, value):
+        """Validate the messages format."""
+        if not value:
+            raise serializers.ValidationError("Messages cannot be empty")
+
+        for message in value:
+            if "role" not in message or "content" not in message:
+                raise serializers.ValidationError(
+                    "Each message must have 'role' and 'content' fields"
+                )
+
+            if message["role"] not in ["user", "assistant"]:
+                raise serializers.ValidationError(
+                    "Message role must be 'user' or 'assistant'"
+                )
+
+        return value

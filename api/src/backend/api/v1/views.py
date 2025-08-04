@@ -41,10 +41,13 @@ from drf_spectacular.utils import (
 )
 from drf_spectacular.views import SpectacularAPIView
 from drf_spectacular_jsonapi.schemas.openapi import JsonApiAutoSchema
+from langchain_core.messages import AIMessage, HumanMessage
+from langchain_openai import ChatOpenAI
 from rest_framework import permissions, status
 from rest_framework.decorators import action
 from rest_framework.exceptions import (
     MethodNotAllowed,
+    NotAuthenticated,
     NotFound,
     PermissionDenied,
     ValidationError,
@@ -148,6 +151,7 @@ from api.v1.serializers import (
     InvitationCreateSerializer,
     InvitationSerializer,
     InvitationUpdateSerializer,
+    LighthouseChatSerializer,
     LighthouseConfigCreateSerializer,
     LighthouseConfigSerializer,
     LighthouseConfigUpdateSerializer,
@@ -3992,3 +3996,88 @@ class ProcessorViewSet(BaseRLSViewSet):
         elif self.action == "partial_update":
             return ProcessorUpdateSerializer
         return super().get_serializer_class()
+
+
+class LighthouseChatView(GenericAPIView):
+    """
+    Simple chat endpoint for Lighthouse AI assistant.
+    """
+
+    serializer_class = LighthouseChatSerializer
+    resource_name = "lighthouse-chat"
+    permission_classes = [permissions.IsAuthenticated]
+    http_method_names = ["post"]
+
+    def dispatch(self, request, *args, **kwargs):
+        with transaction.atomic():
+            return super().dispatch(request, *args, **kwargs)
+
+    def initial(self, request, *args, **kwargs):
+        if request.auth is None:
+            raise NotAuthenticated
+
+        tenant_id = request.auth.get("tenant_id")
+        if tenant_id is None:
+            raise NotAuthenticated("Tenant ID is not present in token")
+
+        with rls_transaction(tenant_id):
+            self.request.tenant_id = tenant_id
+            return super().initial(request, *args, **kwargs)
+
+    def post(self, request):
+        """
+        Process chat messages and return AI response.
+        """
+        # Validate input data
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            messages = serializer.validated_data["messages"]
+
+            # Get lighthouse configuration for this tenant
+            try:
+                lighthouse_config = LighthouseConfiguration.objects.get(
+                    tenant_id=self.request.tenant_id
+                )
+            except LighthouseConfiguration.DoesNotExist:
+                return Response(
+                    {"error": "Lighthouse configuration not found"},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
+            # Check if config is active and has API key
+            if not lighthouse_config.is_active or not lighthouse_config.api_key_decoded:
+                return Response(
+                    {
+                        "error": "Lighthouse configuration is not active or missing API key"
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            # Initialize ChatOpenAI
+            llm = ChatOpenAI(
+                model=lighthouse_config.model,
+                temperature=lighthouse_config.temperature,
+                max_tokens=lighthouse_config.max_tokens,
+                api_key=lighthouse_config.api_key_decoded,
+            )
+
+            # Convert messages to LangChain format
+            langchain_messages = []
+            for message in messages:
+                if message.get("role") == "user":
+                    langchain_messages.append(
+                        HumanMessage(content=message.get("content", ""))
+                    )
+                elif message.get("role") == "assistant":
+                    langchain_messages.append(
+                        AIMessage(content=message.get("content", ""))
+                    )
+            response = llm.invoke(langchain_messages)
+            return Response({"content": response.content, "role": "assistant"})
+
+        except Exception as e:
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
