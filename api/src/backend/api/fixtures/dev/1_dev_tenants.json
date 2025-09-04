@@ -65,5 +65,43 @@
       "role": "owner",
       "date_joined": "2024-01-01T00:00:00.000Z"
     }
+  },
+  {
+    "model": "api.tenant",
+    "pk": "9f1a2b3c-4d5e-46f7-89ab-1c2d3e4f5a61",
+    "fields": {
+      "inserted_at": "2025-01-01T00:00:00Z",
+      "updated_at": "2025-01-01T00:00:00Z",
+      "name": "Lighthouse1 Tenant"
+    }
+  },
+  {
+    "model": "api.membership",
+    "pk": "e1f2a3b4-c5d6-47e8-9f0a-b1c2d3e4f5a6",
+    "fields": {
+      "user": "a1b2c3d4-5e6f-4a1b-9c2d-3e4f5a6b7c8d",
+      "tenant": "9f1a2b3c-4d5e-46f7-89ab-1c2d3e4f5a61",
+      "role": "owner",
+      "date_joined": "2025-01-01T00:00:00.000Z"
+    }
+  },
+  {
+    "model": "api.tenant",
+    "pk": "0a1b2c3d-4e5f-46a7-8b9c-0d1e2f3a4b5c",
+    "fields": {
+      "inserted_at": "2025-01-01T00:00:00Z",
+      "updated_at": "2025-01-01T00:00:00Z",
+      "name": "Lighthouse2 Tenant"
+    }
+  },
+  {
+    "model": "api.membership",
+    "pk": "a6f5e4d3-c2b1-40a9-8e7d-6c5b4a3f2e1d",
+    "fields": {
+      "user": "c9d8e7f6-5a4b-4c3d-8e7f-6a5b4c3d2e1f",
+      "tenant": "0a1b2c3d-4e5f-46a7-8b9c-0d1e2f3a4b5c",
+      "role": "owner",
+      "date_joined": "2025-01-01T00:00:00.000Z"
+    }
   }
 ]

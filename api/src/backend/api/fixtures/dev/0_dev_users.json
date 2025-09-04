@@ -37,5 +37,31 @@
       "is_active": true,
       "date_joined": "2024-01-01T00:00:00.850Z"
     }
+  },
+  {
+    "model": "api.user",
+    "pk": "a1b2c3d4-5e6f-4a1b-9c2d-3e4f5a6b7c8d",
+    "fields": {
+      "password": "pbkdf2_sha256$870000$Z63pGJ7nre48hfcGbk5S0O$rQpKczAmijs96xa+gPVJifpT3Fetb8DOusl5Eq6gxac=",
+      "last_login": null,
+      "name": "Lighthouse NoProvider",
+      "email": "lighthouse1@prowler.com",
+      "company_name": "Lighthouse Alpha",
+      "is_active": true,
+      "date_joined": "2025-01-01T00:00:00.000Z"
+    }
+  },
+  {
+    "model": "api.user",
+    "pk": "c9d8e7f6-5a4b-4c3d-8e7f-6a5b4c3d2e1f",
+    "fields": {
+      "password": "pbkdf2_sha256$870000$Z63pGJ7nre48hfcGbk5S0O$rQpKczAmijs96xa+gPVJifpT3Fetb8DOusl5Eq6gxac=",
+      "last_login": null,
+      "name": "Lighthouse OneProvider",
+      "email": "lighthouse2@prowler.com",
+      "company_name": "Lighthouse Beta",
+      "is_active": true,
+      "date_joined": "2025-01-01T00:00:00.000Z"
+    }
   }
 ]
