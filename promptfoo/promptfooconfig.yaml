@@ -1,0 +1,42 @@
+description: "Promptfoo hitting NextJS analyst endpoint with auth via single extension"
+
+extensions:
+  - 'file://extensions/session.js:extension'
+
+providers:
+  - id: https
+    config:
+      url: "http://localhost:3000/api/lighthouse/analyst"
+      method: POST
+      headers:
+        Content-Type: "application/json"
+        Cookie: "{{env.AUTH_COOKIES}}"
+      body:
+        messages:
+          - role: "user"
+            content: "{{question}}"
+      transformResponse: |
+        (json, text) => {
+          const raw = text || '';
+          let out = '';
+          for (const line of raw.split('\n')) {
+            const m = line.match(/^\s*\d+:\s*"([\s\S]*)"\s*$/);
+            if (m && m[1] !== undefined) {
+              out += m[1].replace(/\\"/g, '"');
+            }
+          }
+          return out || raw;
+        }
+
+prompts:
+  - "{{question}}"
+
+tests:
+  - description: "Analyst basic response"
+    vars:
+      question: "What is Prowler?"
+    assert:
+      - type: contains
+        value: "Prowler is an"
+
+outputPath: ./promptfoo/results.json

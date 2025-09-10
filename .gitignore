@@ -78,3 +78,7 @@ _data/
 
 # Claude
 CLAUDE.md
+
+# Promptfoo
+promptfoo/.env
+promptfoo/results.json
