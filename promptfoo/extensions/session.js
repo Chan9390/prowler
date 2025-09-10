@@ -5,6 +5,7 @@ async function extension(hookName, context) {
     const baseUrl = process.env.NEXTJS_BASE_URL || "http://localhost:3000";
     const email = process.env.NEXTJS_EMAIL;
     const password = process.env.NEXTJS_PASSWORD;
+    const explicitActionHashEnv = process.env.NEXTJS_NEXT_ACTION_HASH || process.env.NEXT_ACTION_HASH;
 
     if (!email || !password) {
       throw new Error("Missing NEXTJS_EMAIL or NEXTJS_PASSWORD env vars");
@@ -61,7 +62,17 @@ async function extension(hookName, context) {
       return null;
     };
 
-    const actionHash = await findActionHash();
+    let actionHash = explicitActionHashEnv;
+    if (actionHash) {
+      const isValid = /^[a-f0-9]{40}$/i.test(actionHash);
+      if (!isValid) {
+        console.warn("Provided NEXTJS_NEXT_ACTION_HASH is not a 40-hex hash; falling back to discovery");
+        actionHash = null;
+      }
+    }
+    if (!actionHash) {
+      actionHash = await findActionHash();
+    }
     if (!actionHash) {
       throw new Error("Could not locate Next-Action hash for authenticate()");
     }
