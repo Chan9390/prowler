@@ -92,19 +92,10 @@ async function extension(hookName, context) {
     }
 
     process.env.AUTH_COOKIES = sessionOnly;
-    if (context && context.vars) context.vars.AUTH_COOKIES = sessionOnly;
-    if (context?.provider?.config) {
-      context.provider.config.headers ||= {};
-      context.provider.config.headers.Cookie = sessionOnly;
-    }
     return;
   }
 
   if (hookName === "beforeEach") {
-    if (process.env.AUTH_COOKIES && context?.provider?.config) {
-      context.provider.config.headers ||= {};
-      context.provider.config.headers.Cookie = process.env.AUTH_COOKIES;
-    }
     return;
   }
 

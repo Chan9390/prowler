@@ -25,7 +25,7 @@ NEXTJS_PASSWORD=your_password_here
 3) Run the eval from repo root
 
 ```bash
-promptfoo eval -c ./promptfoo/promptfooconfig.yaml --env-path ./promptfoo/.env
+promptfoo eval -c ./promptfoo/promptfooconfig.yaml --env-path ./promptfoo/.env --no-cache
 ```
 
 Results will be written to `./promptfoo/results.json`.
@@ -39,7 +39,7 @@ Results will be written to `./promptfoo/results.json`.
 - On success, only the session cookie is used: `authjs.session-token=...`.
 - This cookie must be sent on every protected request, e.g. `POST /api/lighthouse/analyst`.
 - Promptfoo headers interpolate environment variables; the config sends `Cookie: {{env.AUTH_COOKIES}}`.
-- The single extension (`extensions/session.js`) performs login, extracts the session cookie, sets `process.env.AUTH_COOKIES`, and injects the Cookie header.
+- The single extension (`extensions/session.js`) performs login, extracts the session cookie, and sets `process.env.AUTH_COOKIES`; the provider config reads it to send the Cookie header.
 - The Analyst route streams tokens; `transformResponse` aggregates the stream to a final string used for assertions.
 
 ## Files
