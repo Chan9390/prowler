@@ -1,4 +1,4 @@
-description: "Promptfoo hitting NextJS analyst endpoint with auth via single extension"
+description: "Promptfoo to test Lighthouse AI"
 
 extensions:
   - 'file://extensions/session.js:extension'
@@ -6,7 +6,7 @@ extensions:
 providers:
   - id: https
     config:
-      url: "http://localhost:3000/api/lighthouse/analyst"
+      url: "{{env.NEXTJS_BASE_URL}}/api/lighthouse/analyst"
       method: POST
       headers:
         Content-Type: "application/json"
